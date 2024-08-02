@@ -1,0 +1,60 @@
+package org.example.traflixspringbe.controller;
+
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.example.traflixspringbe.common.CommonResponse;
+import org.example.traflixspringbe.data.dto.UserDTO;
+import org.example.traflixspringbe.service.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/v1/auth")
+public class AuthController {
+    private final AuthService userService;
+
+    @Autowired
+    public AuthController(AuthService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping(value="/login")
+    public ResponseEntity<CommonResponse> loginUser(@Valid @RequestBody UserDTO userDTO){
+        log.info("[UserAuthController]-[loginUser] API Call");
+
+        // 요구되는 데이터 존재 여부 검증
+        if(userDTO.getUserEmail().isEmpty() || userDTO.getUserPassword().isEmpty()){
+            log.info("[UserAuthController]-[loginUser] Failed : Empty Variables");
+            CommonResponse response = new CommonResponse(false, HttpStatus.BAD_REQUEST,"Empty Variables");
+            return ResponseEntity.status(response.getStatus()).body(response);
+        }
+
+        // UserService로 요청받은 UserDTO 로그인 요청
+        CommonResponse response = userService.login(userDTO);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PostMapping(value="/signup")
+    public ResponseEntity<CommonResponse> signupUser(@Valid @RequestBody UserDTO userDTO){
+        log.info("[UserAuthController]-[signupUser] API Call");
+
+        // 요구되는 데이터 존재 여부 검증
+        if(userDTO.getUserName().isEmpty() || userDTO.getUserEmail().isEmpty() || userDTO.getUserPassword().isEmpty()){
+            log.info("[UserAuthController]-[signupUser] Failed : Empty Variables");
+            CommonResponse response = new CommonResponse(false,HttpStatus.BAD_REQUEST,"Empty Variables");
+            return ResponseEntity.status(response.getStatus()).body(response);
+        }
+
+        // UserService로 요청받은 UserDTO 회원가입 요청
+        CommonResponse response = userService.signup(userDTO);
+
+        log.info("[UserAuthController]-[signupUser] {} : {}", response.getStatus(), response.getMsg());
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+}

@@ -1,6 +1,7 @@
 package org.example.traflixspringbe.data.dto;
 
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.example.traflixspringbe.data.entity.UserEntity;
@@ -20,6 +21,7 @@ public class UserDTO {
 
     String userName;
 
+    @Email
     @NotNull
     String userEmail;
     @NotNull
